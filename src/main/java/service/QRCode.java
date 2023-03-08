@@ -18,6 +18,22 @@ import java.io.IOException;
 
 public class QRCode {
 
+    public PDDocument stampQRCodeImage(String link, String path, float x, float y, float width, float height) throws IOException, WriterException {
+        File tempFile = createQRCodeImageTempFile(link, 200);
+        PDDocument document = loadPDF(path);
+        PDPage page = document.getPage(document.getNumberOfPages()-1);
+        x = page.getMediaBox().getWidth() - x;
+        PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true, true);
+        PDImageXObject qrCodeXObject = PDImageXObject.createFromFileByContent(tempFile, document);
+        contentStream.drawImage(qrCodeXObject,x,y,width,height);
+        contentStream.setStrokingColor(Color.BLACK);
+        contentStream.setLineWidth(2);
+        contentStream.addRect(x, y, width, height);
+        contentStream.stroke();
+        contentStream.close();
+        return document;
+    }
+
     public File createQRCodeImageTempFile(String link, int size) throws WriterException, IOException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         BitMatrix bitMatrix = qrCodeWriter.encode(link, BarcodeFormat.QR_CODE, size, size);
@@ -33,21 +49,10 @@ public class QRCode {
         return document;
     }
 
-    public void stampQRCodeImage(PDDocument document, PDPage page, File tempFile, float x, float y, float width, float height) throws IOException {
-        PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true, true);
-        PDImageXObject qrCodeXObject = PDImageXObject.createFromFileByContent(tempFile, document);
-        contentStream.drawImage(qrCodeXObject,x,y,width,height);
-        contentStream.setStrokingColor(Color.BLACK);
-        contentStream.setLineWidth(2);
-        contentStream.addRect(x, y, width, height);
-        contentStream.stroke();
-        contentStream.close();
-    }
-
     public void savePDF(PDDocument document, String path) throws IOException {
         File outputFile = new File(path);
         document.save(outputFile);
-        document.close();
     }
+//    public void addQrCode
 
 }
