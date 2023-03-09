@@ -18,18 +18,17 @@ import java.io.IOException;
 
 public class QRCode {
 
-    public PDDocument stampQRCodeImage(String link, String path, float x, float y, float width, float height) throws IOException, WriterException {
-        File tempFile = createQRCodeImageTempFile(link, 200);
-        PDDocument document = loadPDF(path);
+    public PDDocument stampQRCodeImage(PDDocument document, String uri, float x, float y, float width, float height) throws IOException, WriterException {
         PDPage page = document.getPage(document.getNumberOfPages()-1);
+        File tempFile = createQRCodeImageTempFile(uri, 500);
         x = page.getMediaBox().getWidth() - x;
         PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true, true);
         PDImageXObject qrCodeXObject = PDImageXObject.createFromFileByContent(tempFile, document);
         contentStream.drawImage(qrCodeXObject,x,y,width,height);
-        contentStream.setStrokingColor(Color.BLACK);
-        contentStream.setLineWidth(2);
+//        contentStream.setStrokingColor(Color.BLACK);
+//        contentStream.setLineWidth(2);
         contentStream.addRect(x, y, width, height);
-        contentStream.stroke();
+//        contentStream.stroke();
         contentStream.close();
         return document;
     }
